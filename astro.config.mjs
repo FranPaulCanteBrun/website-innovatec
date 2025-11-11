@@ -19,9 +19,6 @@ export default defineConfig({
     assets: 'assets',
   },
   vite: {
-    ssr: {
-      noExternal: ['@astrojs/vercel'],
-    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
