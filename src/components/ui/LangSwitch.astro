@@ -1,0 +1,138 @@
+---
+/**
+ * Componente LangSwitch - InnovaTec
+ * 
+ * Selector de idioma ES/EN.
+ * 
+ * Principios aplicados:
+ * - Single Responsibility: Gestión del idioma
+ * - Separation of Concerns: Lógica separada del UI
+ */
+
+import type { SupportedLocale } from '@/lib/i18n';
+
+// Leer cookie del idioma en el servidor
+const localeCookie = Astro.cookies.get('innovatac-locale');
+const serverLocale = (localeCookie?.value === 'es' || localeCookie?.value === 'en') 
+  ? localeCookie.value as 'es' | 'en'
+  : 'es';
+
+const currentLocale = serverLocale;
+const locales: { code: SupportedLocale; label: string }[] = [
+  { code: 'es', label: 'ES' },
+  { code: 'en', label: 'EN' },
+];
+---
+
+<div class="relative inline-flex items-center">
+  <button
+    type="button"
+    class="inline-flex items-center justify-center px-3 py-2 rounded-lg text-sm font-medium text-light-text-secondary dark:text-[#f5f5f5] hover:bg-light-bg-secondary dark:hover:bg-dark-bg-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+    aria-label="Cambiar idioma"
+    aria-expanded="false"
+    aria-haspopup="true"
+    id="lang-switch-button"
+  >
+    <span class="sr-only">Idioma actual: {currentLocale === 'es' ? 'Español' : 'English'}</span>
+    <span aria-hidden="true">{currentLocale.toUpperCase()}</span>
+    <svg
+      class="ml-1 w-4 h-4"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M19 9l-7 7-7-7"
+      />
+    </svg>
+  </button>
+
+  <div
+    id="lang-switch-menu"
+    class="hidden absolute right-0 top-full mt-2 w-32 bg-light-bg-primary dark:bg-dark-bg-primary rounded-lg shadow-lg border border-light-border dark:border-dark-border py-1 z-50"
+    role="menu"
+    aria-orientation="vertical"
+  >
+    {locales.map((locale) => (
+      <button
+        type="button"
+        class={`w-full text-left px-4 py-2 text-sm transition-colors ${
+          currentLocale === locale.code
+            ? 'bg-accent-light dark:bg-opacity-20 text-accent font-medium'
+            : 'text-light-text-primary dark:text-white hover:bg-light-bg-secondary dark:hover:bg-dark-bg-secondary'
+        }`}
+        role="menuitem"
+        data-locale={locale.code}
+        aria-label={`Cambiar a ${locale.label === 'ES' ? 'Español' : 'English'}`}
+      >
+        {locale.label}
+      </button>
+    ))}
+  </div>
+</div>
+
+<script>
+  import { setLocale } from '@/lib/i18n';
+
+  const button = document.getElementById('lang-switch-button');
+  const menu = document.getElementById('lang-switch-menu');
+  const menuItems = menu?.querySelectorAll('[role="menuitem"]');
+
+  if (button && menu && menuItems) {
+    let isOpen = false;
+
+    const toggleMenu = () => {
+      isOpen = !isOpen;
+      menu.classList.toggle('hidden', !isOpen);
+      button.setAttribute('aria-expanded', String(isOpen));
+    };
+
+    const closeMenu = () => {
+      isOpen = false;
+      menu.classList.add('hidden');
+      button.setAttribute('aria-expanded', 'false');
+    };
+
+    button.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleMenu();
+    });
+
+    menuItems.forEach((item) => {
+      item.addEventListener('click', () => {
+        const locale = item.getAttribute('data-locale');
+        if (locale && (locale === 'es' || locale === 'en')) {
+          // Establecer cookie con SameSite=Lax para que funcione en servidor
+          const expires = new Date();
+          expires.setTime(expires.getTime() + 365 * 24 * 60 * 60 * 1000); // 1 año
+          document.cookie = `innovatac-locale=${locale};path=/;expires=${expires.toUTCString()};SameSite=Lax`;
+          // Guardar en localStorage también
+          setLocale(locale);
+          closeMenu();
+          // Recargar página inmediatamente para aplicar traducciones
+          window.location.reload();
+        }
+      });
+    });
+
+    // Cerrar al hacer clic fuera
+    document.addEventListener('click', (e) => {
+      if (!button.contains(e.target as Node) && !menu.contains(e.target as Node)) {
+        closeMenu();
+      }
+    });
+
+    // Cerrar con Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isOpen) {
+        closeMenu();
+        button.focus();
+      }
+    });
+  }
+</script>
+

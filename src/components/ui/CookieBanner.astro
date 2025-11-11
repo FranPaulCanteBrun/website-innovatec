@@ -1,0 +1,133 @@
+---
+/**
+ * Componente CookieBanner - InnovaTec
+ * 
+ * Banner de cookies con gestión de consentimiento.
+ * 
+ * Principios aplicados:
+ * - Single Responsibility: Gestión de consentimiento de cookies
+ * - Separation of Concerns: Lógica separada del UI
+ */
+
+// Cargar traducciones comunes (solo para detectar locale)
+
+// Leer cookie del idioma en el servidor
+const localeCookie = Astro.cookies.get('innovatac-locale');
+const serverLocale = (localeCookie?.value === 'es' || localeCookie?.value === 'en') 
+  ? localeCookie.value as 'es' | 'en'
+  : 'es';
+
+const currentLocale = serverLocale;
+---
+
+<div id="cookie-banner-container">
+  <div
+    id="cookie-banner"
+    class="fixed bottom-0 left-0 right-0 z-50 bg-light-bg-primary dark:bg-dark-bg-primary border-t border-light-border dark:border-dark-border shadow-lg"
+    role="dialog"
+    aria-labelledby="cookie-banner-title"
+    aria-describedby="cookie-banner-description"
+    style="display: none;"
+  >
+    <div class="container-custom mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <!-- Contenido -->
+        <div class="flex-1">
+          <h3
+            id="cookie-banner-title"
+            class="text-base font-semibold text-light-text-primary dark:text-white mb-2"
+          >
+            {currentLocale === 'es' ? 'Uso de cookies' : 'Cookie usage'}
+          </h3>
+          <p
+            id="cookie-banner-description"
+            class="text-sm text-light-text-secondary dark:text-[#f5f5f5]"
+          >
+            {currentLocale === 'es'
+              ? 'Este sitio utiliza cookies para mejorar la experiencia del usuario y analizar el tráfico. Al continuar navegando, aceptás el uso de cookies.'
+              : 'This site uses cookies to improve user experience and analyze traffic. By continuing to browse, you accept the use of cookies.'}
+          </p>
+          <a
+            href="/politica-cookies"
+            class="text-sm text-accent hover:text-accent-hover underline mt-2 inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 rounded"
+          >
+            {currentLocale === 'es' ? 'Más información' : 'Learn more'}
+          </a>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+          <button
+            type="button"
+            id="cookie-accept-all"
+            class="px-4 py-2 text-sm font-medium text-white bg-accent hover:bg-accent-hover rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+          >
+            {currentLocale === 'es' ? 'Aceptar todas' : 'Accept all'}
+          </button>
+          <button
+            type="button"
+            id="cookie-accept-necessary"
+            class="px-4 py-2 text-sm font-medium text-light-text-primary dark:text-white bg-light-bg-secondary dark:bg-dark-bg-secondary hover:bg-opacity-80 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+          >
+            {currentLocale === 'es' ? 'Solo necesarias' : 'Necessary only'}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { setCookieConsent, hasCookieConsent } from '@/lib/cookies';
+
+  const container = document.getElementById('cookie-banner-container');
+  const banner = document.getElementById('cookie-banner');
+  const acceptAllButton = document.getElementById('cookie-accept-all');
+  const acceptNecessaryButton = document.getElementById('cookie-accept-necessary');
+
+  // Verificar consentimiento en el cliente
+  if (typeof window !== 'undefined' && hasCookieConsent()) {
+    if (container) {
+      container.remove();
+    }
+  } else if (container && banner) {
+    // Mostrar banner solo si no hay consentimiento
+    banner.style.display = 'block';
+  }
+
+  const hideBanner = () => {
+    if (banner) {
+      banner.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
+      banner.style.transform = 'translateY(100%)';
+      banner.style.opacity = '0';
+      setTimeout(() => {
+        if (container) {
+          container.remove();
+        }
+      }, 300);
+    }
+  };
+
+  if (acceptAllButton) {
+    acceptAllButton.addEventListener('click', () => {
+      setCookieConsent({
+        necessary: true,
+        analytics: true,
+        marketing: false,
+      });
+      hideBanner();
+    });
+  }
+
+  if (acceptNecessaryButton) {
+    acceptNecessaryButton.addEventListener('click', () => {
+      setCookieConsent({
+        necessary: true,
+        analytics: false,
+        marketing: false,
+      });
+      hideBanner();
+    });
+  }
+</script>
+

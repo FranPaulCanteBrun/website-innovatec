@@ -1,0 +1,112 @@
+---
+/**
+ * Componente ThemeToggle - InnovaTec
+ * 
+ * Toggle para cambiar entre tema claro y oscuro.
+ * 
+ * Principios aplicados:
+ * - Single Responsibility: Gestión del tema
+ * - Separation of Concerns: Lógica separada del UI
+ */
+
+import { getTheme } from '@/lib/theme';
+
+const currentTheme = getTheme();
+const isDark = currentTheme === 'dark' || (currentTheme === 'auto' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+---
+
+<button
+  type="button"
+  class="inline-flex items-center justify-center p-2 rounded-lg text-light-text-secondary dark:text-[#f8fafc] hover:bg-light-bg-secondary dark:hover:bg-dark-bg-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 w-10 h-10"
+  aria-label={isDark ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}
+  id="theme-toggle"
+>
+  <span class="sr-only">{isDark ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'}</span>
+  
+  <!-- Icono de sol (se muestra en modo oscuro para cambiar a claro) -->
+  <svg
+    id="sun-icon"
+    class="w-5 h-5 hidden"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+    />
+  </svg>
+  
+  <!-- Icono de luna (se muestra en modo claro para cambiar a oscuro) -->
+  <svg
+    id="moon-icon"
+    class="w-5 h-5"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+  >
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+    />
+  </svg>
+</button>
+
+<script>
+  import { toggleTheme } from '@/lib/theme';
+
+  const button = document.getElementById('theme-toggle');
+  const sunIcon = document.getElementById('sun-icon');
+  const moonIcon = document.getElementById('moon-icon');
+  
+  function updateIcons() {
+    const isDark = document.documentElement.classList.contains('dark') || 
+                   document.documentElement.getAttribute('data-theme') === 'dark';
+    
+    if (sunIcon && moonIcon) {
+      if (isDark) {
+        // Modo oscuro: mostrar sol (para cambiar a claro)
+        sunIcon.classList.remove('hidden');
+        moonIcon.classList.add('hidden');
+        button?.setAttribute('aria-label', 'Cambiar a tema claro');
+      } else {
+        // Modo claro: mostrar luna (para cambiar a oscuro)
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.remove('hidden');
+        button?.setAttribute('aria-label', 'Cambiar a tema oscuro');
+      }
+    }
+  }
+  
+  if (button && sunIcon && moonIcon) {
+    // Inicializar iconos según el tema actual
+    updateIcons();
+    
+    button.addEventListener('click', () => {
+      toggleTheme();
+      // Pequeño delay para asegurar que el tema se haya aplicado
+      setTimeout(updateIcons, 10);
+    });
+
+    // Escuchar cambios de tema
+    window.addEventListener('themechange', updateIcons);
+    
+    // Escuchar cambios de tema del sistema
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    mediaQuery.addEventListener('change', updateIcons);
+    
+    // Observer para cambios en el atributo data-theme
+    const observer = new MutationObserver(updateIcons);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme', 'class']
+    });
+  }
+</script>
+

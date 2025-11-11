@@ -1,0 +1,91 @@
+---
+/**
+ * Página Testimonios - InnovaTec
+ * 
+ * Testimonios de clientes.
+ */
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import TestimonialCard from '@/components/sections/TestimonialCard.astro';
+
+// Cargar traducciones
+const pagesEs = await import('@/locales/es/pages.json');
+const pagesEn = await import('@/locales/en/pages.json');
+const commonEs = await import('@/locales/es/common.json');
+const commonEn = await import('@/locales/en/common.json');
+
+// Leer cookie del idioma en el servidor
+const localeCookie = Astro.cookies.get('innovatac-locale');
+const serverLocale = (localeCookie?.value === 'es' || localeCookie?.value === 'en') 
+  ? localeCookie.value as 'es' | 'en'
+  : 'es';
+
+const currentLocale = serverLocale;
+const pages = currentLocale === 'es' ? pagesEs.default : pagesEn.default;
+const common = currentLocale === 'es' ? commonEs.default : commonEn.default;
+
+// Placeholders de testimonios
+const testimonials = [
+  {
+    id: 1,
+    name: currentLocale === 'es' ? 'María González' : 'Maria Gonzalez',
+    role: currentLocale === 'es' ? 'Directora, Empresa Local' : 'Director, Local Company',
+    text: currentLocale === 'es'
+      ? 'InnovaTec transformó nuestra presencia online. El sitio web es moderno, rápido y fácil de usar. Recomendado 100%.'
+      : 'InnovaTec transformed our online presence. The website is modern, fast and easy to use. 100% recommended.',
+  },
+  {
+    id: 2,
+    name: currentLocale === 'es' ? 'Carlos Rodríguez' : 'Carlos Rodriguez',
+    role: currentLocale === 'es' ? 'Gerente, PYME' : 'Manager, SME',
+    text: currentLocale === 'es'
+      ? 'La aplicación de escritorio que desarrollaron optimizó nuestros procesos internos. Excelente trabajo y soporte.'
+      : 'The desktop application they developed optimized our internal processes. Excellent work and support.',
+  },
+  {
+    id: 3,
+    name: currentLocale === 'es' ? 'Ana Martínez' : 'Ana Martinez',
+    role: currentLocale === 'es' ? 'Emprendedora' : 'Entrepreneur',
+    text: currentLocale === 'es'
+      ? 'Profesional, cercano y con resultados. InnovaTec entendió perfectamente nuestras necesidades.'
+      : 'Professional, close and with results. InnovaTec perfectly understood our needs.',
+  },
+];
+---
+
+<BaseLayout
+  title={`${pages.testimonials.title} - ${common.site.name}`}
+  description={pages.testimonials.subtitle}
+>
+  <div class="py-16 bg-light-bg-primary dark:bg-dark-bg-primary">
+    <div class="container-custom mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h1 class="text-4xl md:text-5xl font-bold text-light-text-primary dark:text-white mb-4">
+          {pages.testimonials.title}
+        </h1>
+        <p class="text-xl text-light-text-secondary dark:text-[#f5f5f5] max-w-3xl mx-auto">
+          {pages.testimonials.subtitle}
+        </p>
+      </div>
+
+      {testimonials.length > 0 ? (
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {testimonials.map((testimonial) => (
+            <TestimonialCard
+              name={testimonial.name}
+              role={testimonial.role}
+              text={testimonial.text}
+            />
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-12">
+          <p class="text-lg text-light-text-secondary dark:text-[#f5f5f5]">
+            {pages.testimonials.empty}
+          </p>
+        </div>
+      )}
+    </div>
+  </div>
+</BaseLayout>
+

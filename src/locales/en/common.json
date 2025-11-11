@@ -1,0 +1,49 @@
+{
+  "site": {
+    "name": "InnovaTec",
+    "tagline": "Close technology to transform your work",
+    "description": "Software development and digital solutions for SMEs and professionals"
+  },
+  "nav": {
+    "home": "Home",
+    "services": "Services",
+    "projects": "Projects",
+    "testimonials": "Testimonials",
+    "about": "About",
+    "contact": "Contact"
+  },
+  "cta": {
+    "primary": "Request your digital solution",
+    "secondary": "Let's talk without commitment",
+    "contact": "Contact me",
+    "learnMore": "Learn more"
+  },
+  "footer": {
+    "copyright": "© InnovaTec — Trust, closeness and accessible technology.",
+    "builtWith": "Built with",
+    "rights": "All rights reserved"
+  },
+  "theme": {
+    "light": "Light theme",
+    "dark": "Dark theme",
+    "toggle": "Toggle theme"
+  },
+  "language": {
+    "es": "Español",
+    "en": "English",
+    "switch": "Switch language"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "close": "Close",
+    "send": "Send",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous"
+  }
+}
+

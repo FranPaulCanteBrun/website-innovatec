@@ -1,0 +1,148 @@
+---
+/**
+ * Layout Base - InnovaTec
+ * 
+ * Layout principal con Header, Footer y CookieBanner.
+ * 
+ * Principios aplicados:
+ * - Single Responsibility: Layout único
+ * - Composition: Usa componentes más pequeños
+ */
+
+import Header from '@/components/ui/Header.astro';
+import Footer from '@/components/ui/Footer.astro';
+import CookieBanner from '@/components/ui/CookieBanner.astro';
+import '@/styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+  canonical?: string;
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description = 'Desarrollo de software y soluciones digitales para PYMES y profesionales',
+  ogImage = '/images/og-default.jpg',
+  canonical,
+  noindex = false,
+} = Astro.props;
+
+// Cargar traducciones comunes
+const commonEs = await import('@/locales/es/common.json');
+const commonEn = await import('@/locales/en/common.json');
+
+// Leer cookie del idioma en el servidor
+const localeCookie = Astro.cookies.get('innovatac-locale');
+const serverLocale = (localeCookie?.value === 'es' || localeCookie?.value === 'en') 
+  ? localeCookie.value as 'es' | 'en'
+  : 'es';
+
+const currentLocale = serverLocale;
+const translations = currentLocale === 'es' ? commonEs.default : commonEn.default;
+
+
+const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'https://innovatac.com';
+const currentUrl = canonical || Astro.url.pathname;
+const fullUrl = `${siteUrl}${currentUrl}`;
+---
+
+<!doctype html>
+<html lang={currentLocale} class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    
+    <!-- SEO Meta Tags -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={fullUrl} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={fullUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={`${siteUrl}${ogImage}`} />
+    <meta property="og:locale" content={currentLocale === 'es' ? 'es_ES' : 'en_US'} />
+    <meta property="og:site_name" content={translations.site.name} />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={fullUrl} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={`${siteUrl}${ogImage}`} />
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Preconnect para fuentes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Schema.org JSON-LD -->
+    <script type="application/ld+json" is:inline set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: translations.site.name,
+      description: translations.site.description,
+      url: siteUrl,
+      logo: `${siteUrl}/images/logo.png`,
+      sameAs: [
+        'https://www.linkedin.com/in/franco-paul-cantero-brunelli/',
+        'https://github.com/FranPaulCanteBrun',
+      ],
+      contactPoint: {
+        '@type': 'ContactPoint',
+        contactType: 'Customer Service',
+        email: 'francocanteropaul@gmail.com',
+      },
+    })} />
+
+    <script type="application/ld+json" is:inline set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Person',
+      name: 'Franco Paul Cantero Brunelli',
+      jobTitle: 'Desarrollador de Software',
+      url: siteUrl,
+      sameAs: [
+        'https://www.linkedin.com/in/franco-paul-cantero-brunelli/',
+        'https://github.com/FranPaulCanteBrun',
+      ],
+      email: 'francocanteropaul@gmail.com',
+      worksFor: {
+        '@type': 'Organization',
+        name: translations.site.name,
+      },
+    })} />
+  </head>
+  <body>
+    <Header />
+    <main id="main-content" role="main">
+      <slot />
+    </main>
+    <Footer />
+    <CookieBanner />
+    <script>
+      import { initAccessibility } from '@/lib/accessibility';
+      import { initPerformance } from '@/lib/performance';
+      
+      // Inicializar accesibilidad y rendimiento
+      initAccessibility();
+      initPerformance();
+    </script>
+  </body>
+</html>
+

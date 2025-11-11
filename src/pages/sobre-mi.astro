@@ -1,0 +1,95 @@
+---
+/**
+ * Página Sobre Mí - InnovaTec
+ * 
+ * Bio profesional y humana.
+ */
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+// Cargar traducciones
+const pagesEs = await import('@/locales/es/pages.json');
+const pagesEn = await import('@/locales/en/pages.json');
+const commonEs = await import('@/locales/es/common.json');
+const commonEn = await import('@/locales/en/common.json');
+
+// Leer cookie del idioma en el servidor
+const localeCookie = Astro.cookies.get('innovatac-locale');
+const serverLocale = (localeCookie?.value === 'es' || localeCookie?.value === 'en') 
+  ? localeCookie.value as 'es' | 'en'
+  : 'es';
+
+const currentLocale = serverLocale;
+const pages = currentLocale === 'es' ? pagesEs.default : pagesEn.default;
+const common = currentLocale === 'es' ? commonEs.default : commonEn.default;
+
+const bio = {
+  es: {
+    human: 'Soy Franco Paul Cantero Brunelli, técnico en desarrollo de software apasionado por crear soluciones que realmente importan. Creo en la tecnología como herramienta para mejorar el día a día de las personas y los negocios, no como un fin en sí mismo.',
+    technical: 'Me especializo en desarrollo full-stack con TypeScript, React, Node.js y bases de datos. Trabajo con metodologías ágiles, principios SOLID y buenas prácticas de ingeniería de software. Mi enfoque está en crear código limpio, mantenible y escalable.',
+    philosophy: 'Creo en la cercanía con los clientes, entender sus necesidades reales y ofrecer soluciones simples y confiables. La tecnología debe ser accesible y útil, sin complicaciones innecesarias.',
+  },
+  en: {
+    human: 'I am Franco Paul Cantero Brunelli, a software development technician passionate about creating solutions that really matter. I believe in technology as a tool to improve people\'s and businesses\' daily lives, not as an end in itself.',
+    technical: 'I specialize in full-stack development with TypeScript, React, Node.js and databases. I work with agile methodologies, SOLID principles and software engineering best practices. My focus is on creating clean, maintainable and scalable code.',
+    philosophy: 'I believe in closeness with clients, understanding their real needs and offering simple and reliable solutions. Technology should be accessible and useful, without unnecessary complications.',
+  },
+};
+---
+
+<BaseLayout
+  title={`${pages.about.title} - ${common.site.name}`}
+  description={currentLocale === 'es' ? bio.es.human : bio.en.human}
+>
+  <div class="py-16 bg-light-bg-primary dark:bg-dark-bg-primary">
+    <div class="container-custom mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-3xl mx-auto">
+        <div class="text-center mb-12">
+          <h1 class="text-4xl md:text-5xl font-bold text-light-text-primary dark:text-white mb-4">
+            {pages.about.title}
+          </h1>
+          <p class="text-xl text-light-text-secondary dark:text-[#f5f5f5]">
+            {pages.about.subtitle}
+          </p>
+        </div>
+
+        <div class="space-y-8">
+          <!-- Foto placeholder -->
+          <div class="flex justify-center mb-8">
+            <div class="w-48 h-48 rounded-full bg-light-bg-secondary dark:bg-dark-bg-secondary flex items-center justify-center">
+              <span class="text-6xl" aria-hidden="true">👤</span>
+            </div>
+          </div>
+
+          <!-- Párrafo humano -->
+          <section>
+            <p class="text-lg text-light-text-primary dark:text-white leading-relaxed">
+              {currentLocale === 'es' ? bio.es.human : bio.en.human}
+            </p>
+          </section>
+
+          <!-- Párrafo técnico -->
+          <section>
+            <h2 class="text-2xl font-bold text-light-text-primary dark:text-white mb-4">
+              {currentLocale === 'es' ? 'Experiencia técnica' : 'Technical experience'}
+            </h2>
+            <p class="text-lg text-light-text-primary dark:text-white leading-relaxed">
+              {currentLocale === 'es' ? bio.es.technical : bio.en.technical}
+            </p>
+          </section>
+
+          <!-- Filosofía -->
+          <section>
+            <h2 class="text-2xl font-bold text-light-text-primary dark:text-white mb-4">
+              {currentLocale === 'es' ? 'Filosofía de trabajo' : 'Work philosophy'}
+            </h2>
+            <p class="text-lg text-light-text-primary dark:text-white leading-relaxed">
+              {currentLocale === 'es' ? bio.es.philosophy : bio.en.philosophy}
+            </p>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+

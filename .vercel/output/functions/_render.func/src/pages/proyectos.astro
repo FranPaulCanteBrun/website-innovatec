@@ -1,0 +1,93 @@
+---
+/**
+ * Página Proyectos - InnovaTec
+ * 
+ * Portafolio completo de proyectos.
+ */
+
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ProjectCard from '@/components/sections/ProjectCard.astro';
+
+// Cargar traducciones
+const pagesEs = await import('@/locales/es/pages.json');
+const pagesEn = await import('@/locales/en/pages.json');
+const commonEs = await import('@/locales/es/common.json');
+const commonEn = await import('@/locales/en/common.json');
+
+// Leer cookie del idioma en el servidor
+const localeCookie = Astro.cookies.get('innovatac-locale');
+const serverLocale = (localeCookie?.value === 'es' || localeCookie?.value === 'en') 
+  ? localeCookie.value as 'es' | 'en'
+  : 'es';
+
+const currentLocale = serverLocale;
+const pages = currentLocale === 'es' ? pagesEs.default : pagesEn.default;
+const common = currentLocale === 'es' ? commonEs.default : commonEn.default;
+
+// Placeholders de proyectos
+const projects = [
+  {
+    id: 1,
+    title: currentLocale === 'es' ? 'Sitio Web PYME Local' : 'Local SME Website',
+    problem: currentLocale === 'es' ? 'Falta de presencia online' : 'Lack of online presence',
+    solution: currentLocale === 'es' ? 'Sitio web responsivo y optimizado' : 'Responsive and optimized website',
+    impact: currentLocale === 'es' ? 'Incremento del 50% en consultas' : '50% increase in inquiries',
+    technologies: ['HTML', 'CSS', 'JavaScript'],
+  },
+  {
+    id: 2,
+    title: currentLocale === 'es' ? 'App de Gestión Interna' : 'Internal Management App',
+    problem: currentLocale === 'es' ? 'Procesos manuales ineficientes' : 'Inefficient manual processes',
+    solution: currentLocale === 'es' ? 'Aplicación de escritorio personalizada' : 'Custom desktop application',
+    impact: currentLocale === 'es' ? 'Reducción del 70% en tiempo' : '70% time reduction',
+    technologies: ['TypeScript', 'Electron'],
+  },
+  {
+    id: 3,
+    title: currentLocale === 'es' ? 'App Móvil para Clientes' : 'Mobile App for Clients',
+    problem: currentLocale === 'es' ? 'Acceso limitado a servicios' : 'Limited access to services',
+    solution: currentLocale === 'es' ? 'App móvil nativa iOS/Android' : 'Native iOS/Android mobile app',
+    impact: currentLocale === 'es' ? 'Mejora en satisfacción del cliente' : 'Improved customer satisfaction',
+    technologies: ['React Native', 'TypeScript'],
+  },
+];
+---
+
+<BaseLayout
+  title={`${pages.projects.title} - ${common.site.name}`}
+  description={pages.projects.subtitle}
+>
+  <div class="py-16 bg-light-bg-primary dark:bg-dark-bg-primary">
+    <div class="container-custom mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h1 class="text-4xl md:text-5xl font-bold text-light-text-primary dark:text-white mb-4">
+          {pages.projects.title}
+        </h1>
+        <p class="text-xl text-light-text-secondary dark:text-[#f5f5f5] max-w-3xl mx-auto">
+          {pages.projects.subtitle}
+        </p>
+      </div>
+
+      {projects.length > 0 ? (
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {projects.map((project) => (
+            <ProjectCard
+              title={project.title}
+              problem={project.problem}
+              solution={project.solution}
+              impact={project.impact}
+              technologies={project.technologies}
+            />
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-12">
+          <p class="text-lg text-light-text-secondary dark:text-[#f5f5f5]">
+            {pages.projects.empty}
+          </p>
+        </div>
+      )}
+    </div>
+  </div>
+</BaseLayout>
+

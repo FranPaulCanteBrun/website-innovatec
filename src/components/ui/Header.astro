@@ -1,0 +1,152 @@
+---
+/**
+ * Componente Header - InnovaTec
+ * 
+ * Header con navegación, toggle de tema y selector de idioma.
+ * 
+ * Principios aplicados:
+ * - Single Responsibility: Header único
+ * - Composition: Usa componentes más pequeños
+ */
+
+import ThemeToggle from './ThemeToggle.astro';
+import LangSwitch from './LangSwitch.astro';
+import Button from './Button.astro';
+
+// Cargar traducciones comunes
+const commonEs = await import('@/locales/es/common.json');
+const commonEn = await import('@/locales/en/common.json');
+
+// Leer cookie del idioma en el servidor
+const localeCookie = Astro.cookies.get('innovatac-locale');
+const serverLocale = (localeCookie?.value === 'es' || localeCookie?.value === 'en') 
+  ? localeCookie.value as 'es' | 'en'
+  : 'es';
+
+const currentLocale = serverLocale;
+const translations = currentLocale === 'es' ? commonEs.default : commonEn.default;
+
+const navItems = [
+  { key: 'home', href: '/' },
+  { key: 'services', href: '/servicios' },
+  { key: 'projects', href: '/proyectos' },
+  { key: 'testimonials', href: '/testimonios' },
+  { key: 'about', href: '/sobre-mi' },
+  { key: 'contact', href: '/contacto' },
+];
+---
+
+<header
+  class="sticky top-0 z-50 w-full bg-light-bg-primary/95 dark:bg-dark-bg-primary backdrop-blur-md border-b border-light-border dark:border-[#1a1a1a]"
+  role="banner"
+>
+  <nav class="container-custom mx-auto px-4 sm:px-6 lg:px-8" aria-label="Navegación principal">
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo / Inicio -->
+      <div class="flex-shrink-0">
+        <a
+          href="/"
+          class="text-xl font-bold text-light-text-primary dark:text-white hover:text-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 rounded"
+          aria-label={translations.site.name}
+        >
+          {translations.site.name}
+        </a>
+      </div>
+
+      <!-- Navegación desktop -->
+      <div class="hidden md:flex md:items-center md:space-x-6">
+        {navItems.map((item) => (
+          <a
+            href={item.href}
+            class="text-sm font-medium text-light-text-secondary dark:text-[#f8fafc] hover:text-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 rounded px-2 py-1"
+          >
+            {translations.nav[item.key as keyof typeof translations.nav]}
+          </a>
+        ))}
+      </div>
+
+      <!-- Controles (tema, idioma, CTA) -->
+      <div class="flex items-center space-x-4">
+        <ThemeToggle />
+        <LangSwitch />
+        <div class="hidden md:block">
+          <Button href="/contacto" variant="primary" size="sm">
+            {translations.cta.contact}
+          </Button>
+        </div>
+
+        <!-- Menú móvil -->
+        <button
+          type="button"
+          class="md:hidden inline-flex items-center justify-center p-2 rounded-lg text-light-text-secondary dark:text-[#f8fafc] hover:bg-light-bg-secondary dark:hover:bg-dark-bg-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+          aria-label="Menú"
+          aria-expanded="false"
+          aria-controls="mobile-menu"
+          id="mobile-menu-button"
+        >
+          <span class="sr-only">Abrir menú</span>
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Menú móvil -->
+    <div
+      id="mobile-menu"
+      class="hidden md:hidden pb-4 space-y-2"
+      role="menu"
+      aria-orientation="vertical"
+    >
+      {navItems.map((item) => (
+        <a
+          href={item.href}
+          class="block px-3 py-2 text-base font-medium text-light-text-secondary dark:text-[#f8fafc] hover:text-accent hover:bg-light-bg-secondary dark:hover:bg-dark-bg-secondary rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+          role="menuitem"
+        >
+          {translations.nav[item.key as keyof typeof translations.nav]}
+        </a>
+      ))}
+      <div class="pt-2">
+        <Button href="/contacto" variant="primary" size="sm" class="w-full">
+          {translations.cta.contact}
+        </Button>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<script>
+  const button = document.getElementById('mobile-menu-button');
+  const menu = document.getElementById('mobile-menu');
+
+  if (button && menu) {
+    button.addEventListener('click', () => {
+      const isExpanded = button.getAttribute('aria-expanded') === 'true';
+      button.setAttribute('aria-expanded', String(!isExpanded));
+      menu.classList.toggle('hidden');
+    });
+
+    // Cerrar menú al hacer clic en un enlace
+    const menuLinks = menu.querySelectorAll('a');
+    menuLinks.forEach((link) => {
+      link.addEventListener('click', () => {
+        button.setAttribute('aria-expanded', 'false');
+        menu.classList.add('hidden');
+      });
+    });
+  }
+</script>
+
